@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="guidOpenCodeSenderPackage">
+    <Groups>
+      <Group guid="guidOpenCodeSenderCmdSet" id="ToolsMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
+      </Group>
+      <Group guid="guidOpenCodeSenderCmdSet" id="EditorContextMenuGroup" priority="0x0500">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN" />
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection" priority="0x0100" type="Button">
+        <Parent guid="guidOpenCodeSenderCmdSet" id="ToolsMenuGroup" />
+        <Strings>
+          <ButtonText>Send to OpenCode</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelectionContext" priority="0x0100" type="Button">
+        <Parent guid="guidOpenCodeSenderCmdSet" id="EditorContextMenuGroup" />
+        <Strings>
+          <ButtonText>Send to OpenCode</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <KeyBindings>
+    <KeyBinding guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection"
+                editor="guidVSStd97" key1="O" mod1="CONTROL ALT SHIFT" />
+  </KeyBindings>
+
+  <Symbols>
+    <GuidSymbol name="guidOpenCodeSenderPackage" value="{8f9d1a2c-6b3e-4c7a-9e21-5a0d3b8c4f61}" />
+
+    <GuidSymbol name="guidOpenCodeSenderCmdSet" value="{3c7a1f84-2d95-4b8e-a174-6c0e9f2b5d38}">
+      <IDSymbol name="ToolsMenuGroup" value="0x1020" />
+      <IDSymbol name="EditorContextMenuGroup" value="0x1021" />
+      <IDSymbol name="cmdidSendSelection" value="0x0100" />
+      <IDSymbol name="cmdidSendSelectionContext" value="0x0101" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

@@ -1,0 +1,65 @@
+<Project>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>OpenCodeSender</RootNamespace>
+    <AssemblyName>OpenCodeSender</AssemblyName>
+    <Nullable>disable</Nullable>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AssemblyTitle>OpenCode Sender</AssemblyTitle>
+    <Product>OpenCode Sender</Product>
+    <Company>OpenCode Sender</Company>
+    <Version>1.0.1</Version>
+
+    <!-- VSIX / VS SDK -->
+    <CreateVsixContainer>true</CreateVsixContainer>
+    <DeployExtension>false</DeployExtension>
+    <CopyVsixManifestToOutput>true</CopyVsixManifestToOutput>
+    <GeneratePkgDefFile>true</GeneratePkgDefFile>
+    <!-- Without this the pkgdef has no CodeBase and VS cannot find the assembly. -->
+    <RegisterWithCodebase>true</RegisterWithCodebase>
+    <UseCodebase>true</UseCodebase>
+    <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+    <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
+    <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
+
+    <!-- The extension is installed for the current user; keeps deployment simple. -->
+    <CreateVsixContainerDependsOn>GenerateFileManifest;GenerateResourcePackagesManifest</CreateVsixContainerDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2142" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Design" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <VSCTCompile Include="VSCommandTable.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
+    </VSCTCompile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="source.extension.vsixmanifest">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+
+  <!-- SDK targets first (they define OutDir/IntermediateOutputPath/TargetPath), VSSDK targets after them. -->
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- VSSDK build tools come from the Microsoft.VSSDK.BuildTools NuGet package and set VSToolsPath. -->
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets')" />
+
+  <!-- `msbuild /t:Build` (and the IDE build) must produce the .vsix. -->
+  <Target Name="BuildVsixContainer" AfterTargets="Build" DependsOnTargets="GeneratePkgDef;CreateVsixContainer" />
+
+</Project>
