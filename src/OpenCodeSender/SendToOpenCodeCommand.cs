@@ -49,30 +49,7 @@ namespace OpenCodeSender
 
         private OleMenuCommand CreateMenuCommand(int commandId)
         {
-            var menuCommand = new OleMenuCommand(Execute, new CommandID(OpenCodeSenderPackage.CommandSet, commandId));
-            menuCommand.BeforeQueryStatus += OnBeforeQueryStatus;
-            return menuCommand;
-        }
-
-        private void OnBeforeQueryStatus(object sender, EventArgs e)
-        {
-            var menuCommand = sender as OleMenuCommand;
-            if (menuCommand == null)
-            {
-                return;
-            }
-
-            try
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-
-                var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-                menuCommand.Enabled = dte?.ActiveDocument != null;
-            }
-            catch (Exception)
-            {
-                menuCommand.Enabled = true;
-            }
+            return new OleMenuCommand(Execute, new CommandID(OpenCodeSenderPackage.CommandSet, commandId));
         }
 
         private void Execute(object sender, EventArgs e)
@@ -138,12 +115,30 @@ namespace OpenCodeSender
             // Window activation and pasting involve blocking waits, so they run on a background thread.
             int delay = options.PasteDelayMs;
             string titleFilter = options.WindowTitleFilter;
+            bool launchIfMissing = options.LaunchOpenCodeIfNotRunning;
+            string executablePath = options.OpenCodeExecutablePath;
+            int launchTimeout = options.LaunchTimeoutSeconds;
 
-            PasteResult result = await Task.Run(() => PasteFlow.Run(delay, titleFilter));
+            PasteResult result = await Task.Run(() => PasteFlow.Run(delay, titleFilter, launchIfMissing, executablePath, launchTimeout));
             await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            OpenCodeSenderPackage.Log(
+                $"Send: wholeFile={capture.IsWholeFile} payloadLength={payload.Length} " +
+                $"launched={result.Launched} windowFound={result.WindowFound} target='{result.WindowDescription}' " +
+                $"activated={result.Activated} pasted={result.Pasted}" +
+                (result.LaunchFailed ? " launchError='" + result.LaunchError + "'" : string.Empty));
 
             if (!result.WindowFound)
             {
+                if (result.LaunchFailed)
+                {
+                    _package.ShowWarning(
+                        "The code was copied to the clipboard, but OpenCode could not be started." + Environment.NewLine + Environment.NewLine +
+                        result.LaunchError + Environment.NewLine + Environment.NewLine +
+                        "Start OpenCode manually and press Ctrl+V in its chat, or set the executable path in Tools > Options > OpenCode Sender.");
+                    return;
+                }
+
                 _package.ShowWarning(
                     "The code was copied to the clipboard, but no OpenCode window was found." + Environment.NewLine + Environment.NewLine +
                     "Start OpenCode, then press Ctrl+V in its chat to paste the code." + Environment.NewLine + Environment.NewLine +
@@ -170,7 +165,7 @@ namespace OpenCodeSender
             string status;
             if (capture.IsWholeFile)
             {
-                status = $"OpenCode: whole file sent ({capture.FileName}, {capture.LineCount} line(s))";
+                status = $"OpenCode: file path sent ({capture.FileName})";
             }
             else
             {

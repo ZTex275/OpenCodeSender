@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011"
                  xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="OpenCodeSender.7c1f8a52-9b0e-4c1d-8f3a-2d6e5b4a9c71" Version="1.0.1" Language="en-US" Publisher="OpenCode Sender" />
+    <Identity Id="OpenCodeSender.7c1f8a52-9b0e-4c1d-8f3a-2d6e5b4a9c71" Version="1.0.5" Language="en-US" Publisher="OpenCode Sender" />
     <DisplayName>OpenCode Sender</DisplayName>
     <Description xml:space="preserve">Send the selected code fragment (or the whole file together with its full path) straight into the OpenCode chat window with a single shortcut.</Description>
     <Tags>opencode, ai, clipboard, chat</Tags>

@@ -10,6 +10,8 @@ namespace OpenCodeSender
     {
         public IntPtr Handle { get; set; }
 
+        public uint ProcessId { get; set; }
+
         public string Title { get; set; }
 
         public string ProcessName { get; set; }
@@ -20,7 +22,51 @@ namespace OpenCodeSender
 
     internal static class WindowFinder
     {
-        private const string OpenCodeProcessName = "OpenCode";
+        public const string OpenCodeProcessName = "OpenCode";
+
+        /// <summary>
+        /// Processes whose window must never be used as a paste target. Visual Studio itself is
+        /// covered by the "current process" check, the rest avoid pasting into browsers/Explorer
+        /// when the title filter accidentally matches them.
+        /// </summary>
+        private static readonly HashSet<string> BlockedProcesses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "devenv",
+            "explorer",
+            "chrome",
+            "msedge",
+            "firefox",
+            "opera",
+            "brave",
+            "vivaldi",
+            "ApplicationFrameHost",
+            "SearchHost"
+        };
+
+        /// <summary>
+        /// Processes that host a terminal. The title filter fallback is limited to them so a random
+        /// editor/browser window whose title merely contains the project folder name (for example
+        /// "...\\VSIX OpenCode\\build.ps1 - Notepad++") can never receive the pasted code.
+        /// </summary>
+        private static readonly HashSet<string> TerminalProcesses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "WindowsTerminal",
+            "wt",
+            "OpenConsole",
+            "conhost",
+            "cmd",
+            "powershell",
+            "pwsh",
+            "mintty",
+            "ConEmu64",
+            "ConEmu",
+            "Hyper",
+            "Tabby",
+            "alacritty",
+            "wezterm-gui",
+            "WezTerm",
+            "Terminal"
+        };
 
         /// <summary>
         /// Finds the top-level OpenCode window. The window that is highest in the Z-order wins,
@@ -34,9 +80,12 @@ namespace OpenCodeSender
                 return null;
             }
 
+            uint ownProcessId = GetCurrentProcessId();
+
             foreach (WindowTarget window in windows)
             {
-                if (string.Equals(window.ProcessName, OpenCodeProcessName, StringComparison.OrdinalIgnoreCase))
+                if (IsUsable(window, ownProcessId) &&
+                    string.Equals(window.ProcessName, OpenCodeProcessName, StringComparison.OrdinalIgnoreCase))
                 {
                     return window;
                 }
@@ -44,7 +93,7 @@ namespace OpenCodeSender
 
             foreach (WindowTarget window in windows)
             {
-                if (window.ProcessName != null &&
+                if (IsUsable(window, ownProcessId) &&
                     window.ProcessName.IndexOf("opencode", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return window;
@@ -55,7 +104,8 @@ namespace OpenCodeSender
             {
                 foreach (WindowTarget window in windows)
                 {
-                    if (window.Title != null &&
+                    if (IsUsable(window, ownProcessId) &&
+                        IsTerminal(window) &&
                         window.Title.IndexOf(titleFilter, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         return window;
@@ -64,6 +114,66 @@ namespace OpenCodeSender
             }
 
             return null;
+        }
+
+        private static bool IsTerminal(WindowTarget window)
+        {
+            return window.ProcessName != null && TerminalProcesses.Contains(window.ProcessName);
+        }
+
+        /// <summary>True when a process called OpenCode is running (with or without a window).</summary>
+        public static bool IsProcessRunning()
+        {
+            try
+            {
+                Process[] processes = Process.GetProcessesByName(OpenCodeProcessName);
+                try
+                {
+                    return processes.Length > 0;
+                }
+                finally
+                {
+                    foreach (Process process in processes)
+                    {
+                        process.Dispose();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private static bool IsUsable(WindowTarget window, uint ownProcessId)
+        {
+            if (window == null || window.Handle == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            // Never paste into the process that hosts this extension (devenv).
+            if (window.ProcessId == ownProcessId)
+            {
+                return false;
+            }
+
+            return !BlockedProcesses.Contains(window.ProcessName ?? string.Empty);
+        }
+
+        private static uint GetCurrentProcessId()
+        {
+            try
+            {
+                using (Process current = Process.GetCurrentProcess())
+                {
+                    return (uint)current.Id;
+                }
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
 
         private static List<WindowTarget> EnumerateTopLevelWindows()
@@ -104,6 +214,7 @@ namespace OpenCodeSender
                     result.Add(new WindowTarget
                     {
                         Handle = handle,
+                        ProcessId = processId,
                         Title = buffer.ToString(),
                         ProcessName = processName
                     });
@@ -208,6 +319,20 @@ namespace OpenCodeSender
             }
 
             return foreground == handle || NativeMethods.GetAncestor(foreground, NativeMethods.GaRoot) == handle;
+        }
+
+        /// <summary>The process id of the window that currently owns the input focus.</summary>
+        public static uint GetForegroundProcessId()
+        {
+            IntPtr foreground = NativeMethods.GetForegroundWindow();
+            if (foreground == IntPtr.Zero)
+            {
+                return 0;
+            }
+
+            uint processId;
+            NativeMethods.GetWindowThreadProcessId(foreground, out processId);
+            return processId;
         }
 
         private static bool WaitForForeground(IntPtr handle, int timeoutMs)

@@ -46,7 +46,7 @@ namespace OpenCodeSender
 
             string fullText = textDocument.StartPoint.CreateEditPoint().GetText(textDocument.EndPoint);
 
-            bool isWholeFile = IsWholeFile(selectedText, fullText);
+            bool isWholeFile = IsWholeFile(selection, textDocument, selectedText, fullText);
 
             if (!isWholeFile && string.IsNullOrWhiteSpace(selectedText) && !emptySelectionMeansWholeFile)
             {
@@ -69,7 +69,7 @@ namespace OpenCodeSender
             };
         }
 
-        private static bool IsWholeFile(string selectedText, string fullText)
+        private static bool IsWholeFile(TextSelection selection, TextDocument textDocument, string selectedText, string fullText)
         {
             // No selection at all is treated as "the whole file".
             if (string.IsNullOrWhiteSpace(selectedText))
@@ -77,7 +77,47 @@ namespace OpenCodeSender
                 return true;
             }
 
+            // The text comparison alone is fragile (line endings, trailing whitespace, virtual space),
+            // so first check whether the selection structurally covers the whole document.
+            if (CoversWholeDocument(selection, textDocument))
+            {
+                return true;
+            }
+
             return string.Equals(Normalize(selectedText), Normalize(fullText), StringComparison.Ordinal);
+        }
+
+        private static bool CoversWholeDocument(TextSelection selection, TextDocument textDocument)
+        {
+            try
+            {
+                if (selection == null)
+                {
+                    return false;
+                }
+
+                EnvDTE.VirtualPoint top = selection.TopPoint;
+                EnvDTE.VirtualPoint bottom = selection.BottomPoint;
+                EnvDTE.TextPoint start = textDocument.StartPoint;
+                EnvDTE.TextPoint end = textDocument.EndPoint;
+
+                if (top == null || bottom == null || start == null || end == null)
+                {
+                    return false;
+                }
+
+                bool startsAtDocumentStart = top.Line < start.Line ||
+                    (top.Line == start.Line && top.LineCharOffset <= start.LineCharOffset + 1);
+
+                bool endsAtDocumentEnd = bottom.Line > end.Line ||
+                    (bottom.Line == end.Line && bottom.LineCharOffset >= end.LineCharOffset - 1);
+
+                return startsAtDocumentStart && endsAtDocumentEnd;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private static string Normalize(string text)
@@ -146,7 +186,8 @@ namespace OpenCodeSender
     {
         /// <summary>
         /// Builds the text that is placed on the clipboard.
-        /// A whole file is prefixed with its absolute path, a fragment is pasted as is.
+        /// A whole file is replaced by its absolute path (the contents are optional), a fragment
+        /// is pasted as is.
         /// </summary>
         public static string Build(CapturedSelection capture, OpenCodeOptionsPage options)
         {
@@ -155,18 +196,29 @@ namespace OpenCodeSender
             // Never send a trailing newline: some chat inputs treat Enter as "send".
             code = code.TrimEnd('\r', '\n');
 
-            if (!capture.IsWholeFile || options == null || !options.IncludeFullPathForWholeFile)
+            if (!capture.IsWholeFile)
+            {
+                return code;
+            }
+
+            bool sendPath = options == null || options.IncludeFullPathForWholeFile;
+            if (!sendPath)
             {
                 return code;
             }
 
             string path = string.IsNullOrEmpty(capture.FullPath) ? capture.FileName : capture.FullPath;
 
-            var builder = new StringBuilder();
-            builder.Append(path);
-            builder.Append("\r\n\r\n");
-            builder.Append(code);
-            return builder.ToString();
+            if (options != null && options.IncludeCodeWithWholeFilePath && !string.IsNullOrWhiteSpace(code))
+            {
+                var builder = new StringBuilder();
+                builder.Append(path);
+                builder.Append("\r\n\r\n");
+                builder.Append(code);
+                return builder.ToString();
+            }
+
+            return path ?? string.Empty;
         }
     }
 }
