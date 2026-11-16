@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0
+
+### Added
+
+- **Any target application.** The setting formerly known as *OpenCode window title filter* is now **Target application (process or window title)**: enter a process name (`chrome`, `Code`, `notepad`) or a fragment of a window title and the text is pasted there. Compact spellings are understood (`vscode` finds “Visual Studio Code”), and empty or `opencode` keeps the original OpenCode behaviour.
+- **Localized options page.** Setting names, descriptions and category groups on *Tools → Options → OpenCode Sender → General* are now shown in Russian Visual Studio, and all dialogs and status‑bar messages follow the UI language.
+
+### Changed
+
+- Autostart of the OpenCode desktop application now happens only when the configured target is OpenCode; a custom target is never started.
+- Browsers and Explorer are no longer blocked as paste targets, since they are now legitimate targets. The window that hosts the extension (Visual Studio) is still never used.
+- Version bumped to 1.2.0 in the manifest, the assembly and the installed‑product registration; the marketplace description mentions the configurable target.
+
 ## 1.1.0
 
 ### Added

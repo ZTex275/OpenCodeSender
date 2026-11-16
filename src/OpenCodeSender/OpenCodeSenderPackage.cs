@@ -14,7 +14,7 @@ namespace OpenCodeSender
     /// Entry point of the extension. Registers the commands and the options page.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("OpenCode Sender", "Sends the selected code to the OpenCode chat window.", "1.1.0")]
+    [InstalledProductRegistration("OpenCode Sender", "Sends the selected code to the OpenCode chat window.", "1.2.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OpenCodeOptionsPage), "OpenCode Sender", "General", 0, 0, true)]
     [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]

@@ -69,22 +69,25 @@ namespace OpenCodeSender
     internal static class PasteFlow
     {
         /// <summary>
-        /// Activates the OpenCode window (starts OpenCode when needed), waits until it is really in
-        /// front and pastes the clipboard. Runs on a background thread because it uses blocking waits.
-        /// The clipboard is never pasted into any other application.
+        /// Activates the target window (starts OpenCode when the target is OpenCode and it is not
+        /// running), waits until it is really in front and pastes the clipboard. Runs on a
+        /// background thread because it uses blocking waits. The clipboard is never pasted into
+        /// the process that hosts the extension.
         /// </summary>
         public static PasteResult Run(
             int pasteDelayMs,
-            string titleFilter,
+            string targetName,
             bool launchIfMissing,
             string executablePath,
             int launchTimeoutSeconds)
         {
             var result = new PasteResult();
 
-            WindowTarget target = WindowFinder.Find(titleFilter);
+            WindowTarget target = WindowFinder.Find(targetName);
 
-            if (target == null && launchIfMissing)
+            // Only OpenCode can be started by the extension. A custom target such as "chrome"
+            // is expected to be running already.
+            if (target == null && launchIfMissing && WindowFinder.IsOpenCodeTarget(targetName))
             {
                 result.Launched = OpenCodeLauncher.TryStart(executablePath, out string error);
                 if (!result.Launched)
@@ -94,7 +97,7 @@ namespace OpenCodeSender
                     return result;
                 }
 
-                target = WaitForWindow(titleFilter, launchTimeoutSeconds);
+                target = WaitForWindow(targetName, launchTimeoutSeconds);
             }
 
             if (target == null)
@@ -138,14 +141,14 @@ namespace OpenCodeSender
             return result;
         }
 
-        private static WindowTarget WaitForWindow(string titleFilter, int timeoutSeconds)
+        private static WindowTarget WaitForWindow(string targetName, int timeoutSeconds)
         {
             int timeout = Math.Max(5, timeoutSeconds) * 1000;
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             while (stopwatch.ElapsedMilliseconds < timeout)
             {
-                WindowTarget target = WindowFinder.Find(titleFilter);
+                WindowTarget target = WindowFinder.Find(targetName);
                 if (target != null)
                 {
                     // Let the window finish its startup animation before activating it.

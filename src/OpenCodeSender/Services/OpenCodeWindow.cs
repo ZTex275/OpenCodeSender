@@ -26,19 +26,12 @@ namespace OpenCodeSender
 
         /// <summary>
         /// Processes whose window must never be used as a paste target. Visual Studio itself is
-        /// covered by the "current process" check, the rest avoid pasting into browsers/Explorer
-        /// when the title filter accidentally matches them.
+        /// covered by the "current process" check; ApplicationFrameHost and SearchHost only host
+        /// windows of other applications (UWP), so pasting into them would be a guess.
         /// </summary>
         private static readonly HashSet<string> BlockedProcesses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "devenv",
-            "explorer",
-            "chrome",
-            "msedge",
-            "firefox",
-            "opera",
-            "brave",
-            "vivaldi",
             "ApplicationFrameHost",
             "SearchHost"
         };
@@ -69,10 +62,20 @@ namespace OpenCodeSender
         };
 
         /// <summary>
-        /// Finds the top-level OpenCode window. The window that is highest in the Z-order wins,
-        /// i.e. the one the user has seen last.
+        /// Finds the window that should receive the pasted text.
+        /// <para>
+        /// An empty target (or one that names OpenCode) keeps the original, defensive lookup:
+        /// the OpenCode desktop window, then any process whose name contains "opencode", then a
+        /// terminal window whose title contains the target text.
+        /// </para>
+        /// <para>
+        /// Any other target (for example "chrome", "Code" or "Excel") is matched against the
+        /// process name first and against the window title afterwards, also ignoring spaces so
+        /// that "vscode" finds "Visual Studio Code". The window that is highest in the Z-order
+        /// wins, i.e. the one the user has seen last.
+        /// </para>
         /// </summary>
-        public static WindowTarget Find(string titleFilter)
+        public static WindowTarget Find(string targetName)
         {
             List<WindowTarget> windows = EnumerateTopLevelWindows();
             if (windows.Count == 0)
@@ -81,7 +84,44 @@ namespace OpenCodeSender
             }
 
             uint ownProcessId = GetCurrentProcessId();
+            string target = (targetName ?? string.Empty).Trim();
 
+            if (target.Length == 0 || IsOpenCodeName(target))
+            {
+                return FindOpenCode(windows, ownProcessId, target);
+            }
+
+            foreach (WindowTarget window in windows)
+            {
+                if (IsUsable(window, ownProcessId) &&
+                    string.Equals(window.ProcessName, target, StringComparison.OrdinalIgnoreCase))
+                {
+                    return window;
+                }
+            }
+
+            foreach (WindowTarget window in windows)
+            {
+                if (IsUsable(window, ownProcessId) &&
+                    window.ProcessName.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return window;
+                }
+            }
+
+            foreach (WindowTarget window in windows)
+            {
+                if (IsUsable(window, ownProcessId) && ContainsLoose(window.Title, target))
+                {
+                    return window;
+                }
+            }
+
+            return null;
+        }
+
+        private static WindowTarget FindOpenCode(List<WindowTarget> windows, uint ownProcessId, string titleFilter)
+        {
             foreach (WindowTarget window in windows)
             {
                 if (IsUsable(window, ownProcessId) &&
@@ -114,6 +154,103 @@ namespace OpenCodeSender
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// True when the configured target means "OpenCode", i.e. when the extension may start
+        /// the OpenCode application itself. A custom target such as "chrome" is never started.
+        /// </summary>
+        public static bool IsOpenCodeTarget(string targetName)
+        {
+            string target = (targetName ?? string.Empty).Trim();
+            return target.Length == 0 || IsOpenCodeName(target);
+        }
+
+        private static bool IsOpenCodeName(string target)
+        {
+            return target.IndexOf("opencode", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>
+        /// Case-insensitive "contains" that ignores spaces and punctuation, so a target typed
+        /// without separators ("notepad++", "visual studio code") still finds its window title.
+        /// Word beginnings are matched as well: "vscode" finds "Visual Studio Code".
+        /// </summary>
+        private static bool ContainsLoose(string text, string needle)
+        {
+            if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(needle))
+            {
+                return false;
+            }
+
+            if (text.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+
+            string compactText = KeepLettersAndDigits(text);
+            string compactNeedle = KeepLettersAndDigits(needle);
+
+            if (compactNeedle.Length < 3)
+            {
+                return false;
+            }
+
+            if (compactText.IndexOf(compactNeedle, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+
+            return MatchesWordBeginnings(text, compactNeedle);
+        }
+
+        private static string KeepLettersAndDigits(string value)
+        {
+            var builder = new StringBuilder(value.Length);
+            foreach (char c in value)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    builder.Append(c);
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// True when the target can be read as the beginnings of consecutive title words,
+        /// at least one character per word: "vscode" = "V" + "S" + "Code" in "Visual Studio Code".
+        /// </summary>
+        private static bool MatchesWordBeginnings(string title, string needle)
+        {
+            char[] separators = { ' ', '\t', '-', '|', ':', '.', ',', '(', ')', '[', ']', '/', '\\' };
+            string[] words = title.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            int position = 0;
+
+            foreach (string word in words)
+            {
+                if (position >= needle.Length)
+                {
+                    return true;
+                }
+
+                int matched = 0;
+                while (matched < word.Length &&
+                       position < needle.Length &&
+                       char.ToLowerInvariant(word[matched]) == char.ToLowerInvariant(needle[position]))
+                {
+                    matched++;
+                    position++;
+                }
+
+                if (matched == 0 && position > 0)
+                {
+                    return false;
+                }
+            }
+
+            return position == needle.Length;
         }
 
         private static bool IsTerminal(WindowTarget window)

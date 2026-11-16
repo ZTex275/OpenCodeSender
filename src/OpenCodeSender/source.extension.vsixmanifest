@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011"
-                 xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="OpenCodeSender.7c1f8a52-9b0e-4c1d-8f3a-2d6e5b4a9c71" Version="1.1.0" Language="en-US" Publisher="OpenCode Sender" />
+    <Identity Id="OpenCodeSender.7c1f8a52-9b0e-4c1d-8f3a-2d6e5b4a9c71" Version="1.2.0" Language="en-US" Publisher="ZTex275" />
     <DisplayName>OpenCode Sender</DisplayName>
-    <Description xml:space="preserve">Send the selected code to the OpenCode chat with Ctrl+Alt+Shift+O. A fragment is copied as is, the whole file is sent as its full path, and OpenCode is started automatically when it is not running.</Description>
+    <Description xml:space="preserve">Send the selected code to the OpenCode chat with Ctrl+Alt+Shift+O. A fragment is copied as is, the whole file is sent as its full path, and OpenCode starts automatically — or pick any other target application, such as VS Code, a browser or a terminal.</Description>
     <Icon>Resources\icon-128.png</Icon>
     <PreviewImage>Resources\preview-200.png</PreviewImage>
     <Tags>opencode, ai, chat, code, assistant, clipboard, productivity</Tags>
@@ -24,9 +23,9 @@
     <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" Version="[4.7.2,)" />
   </Dependencies>
   <Prerequisites>
-    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[18.0,19.0)" DisplayName="Visual Studio core editor" />
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" DisplayName="Visual Studio core editor" Version="[18.0,19.0)" />
   </Prerequisites>
   <Assets>
-    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" d:Source="Project" d:ProjectName="%CurrentProject%" />
   </Assets>
 </PackageManifest>

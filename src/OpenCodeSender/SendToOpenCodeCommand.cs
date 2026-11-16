@@ -63,7 +63,7 @@ namespace OpenCodeSender
                 catch (Exception ex)
                 {
                     await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    _package.ShowError("Sending the code to OpenCode failed:" + Environment.NewLine + Environment.NewLine + ex.Message);
+                    _package.ShowError(Localization.SendFailed(ex.Message));
                 }
             });
         }
@@ -75,7 +75,7 @@ namespace OpenCodeSender
             var dte = await _package.GetServiceAsync(typeof(DTE)) as DTE;
             if (dte == null)
             {
-                _package.ShowError("Visual Studio automation object (DTE) is not available.");
+                _package.ShowError(Localization.DteUnavailable);
                 return;
             }
 
@@ -88,13 +88,13 @@ namespace OpenCodeSender
             }
             catch (COMException ex)
             {
-                _package.ShowError("Could not read the editor content:" + Environment.NewLine + Environment.NewLine + ex.Message);
+                _package.ShowError(Localization.ReadEditorFailed(ex.Message));
                 return;
             }
 
             if (capture == null)
             {
-                _package.ShowInfo("Put the caret into a text file or select a code fragment first.");
+                _package.ShowInfo(Localization.NoTextFile);
                 return;
             }
 
@@ -106,18 +106,18 @@ namespace OpenCodeSender
             }
             catch (Exception ex)
             {
-                _package.ShowError("Could not copy the code to the clipboard:" + Environment.NewLine + Environment.NewLine + ex.Message);
+                _package.ShowError(Localization.ClipboardFailed(ex.Message));
                 return;
             }
 
             // Window activation and pasting involve blocking waits, so they run on a background thread.
             int delay = options.PasteDelayMs;
-            string titleFilter = options.WindowTitleFilter;
+            string targetName = options.TargetApplication;
             bool launchIfMissing = options.LaunchOpenCodeIfNotRunning;
             string executablePath = options.OpenCodeExecutablePath;
             int launchTimeout = options.LaunchTimeoutSeconds;
 
-            PasteResult result = await Task.Run(() => PasteFlow.Run(delay, titleFilter, launchIfMissing, executablePath, launchTimeout));
+            PasteResult result = await Task.Run(() => PasteFlow.Run(delay, targetName, launchIfMissing, executablePath, launchTimeout));
             await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             OpenCodeSenderPackage.Log(
@@ -126,48 +126,42 @@ namespace OpenCodeSender
                 $"activated={result.Activated} pasted={result.Pasted}" +
                 (result.LaunchFailed ? " launchError='" + result.LaunchError + "'" : string.Empty));
 
+            string targetDisplayName = WindowFinder.IsOpenCodeTarget(targetName)
+                ? WindowFinder.OpenCodeProcessName
+                : targetName.Trim();
+
             if (!result.WindowFound)
             {
                 if (result.LaunchFailed)
                 {
-                    _package.ShowWarning(
-                        "The code was copied to the clipboard, but OpenCode could not be started." + Environment.NewLine + Environment.NewLine +
-                        result.LaunchError + Environment.NewLine + Environment.NewLine +
-                        "Start OpenCode manually and press Ctrl+V in its chat, or set the executable path in Tools > Options > OpenCode Sender.");
+                    _package.ShowWarning(Localization.LaunchFailed(targetDisplayName, result.LaunchError));
                     return;
                 }
 
-                _package.ShowWarning(
-                    "The code was copied to the clipboard, but no OpenCode window was found." + Environment.NewLine + Environment.NewLine +
-                    "Start OpenCode, then press Ctrl+V in its chat to paste the code." + Environment.NewLine + Environment.NewLine +
-                    "If OpenCode runs inside a terminal, set its window title filter in Tools > Options > OpenCode Sender.");
+                _package.ShowWarning(Localization.WindowNotFound(targetDisplayName));
                 return;
             }
 
             if (!result.Activated)
             {
-                _package.ShowWarning(
-                    "The code was copied to the clipboard, but the OpenCode window could not be activated." + Environment.NewLine + Environment.NewLine +
-                    "Switch to OpenCode manually and press Ctrl+V.");
+                _package.ShowWarning(Localization.NotActivated(targetDisplayName));
                 return;
             }
 
             if (!result.Pasted)
             {
-                _package.ShowWarning(
-                    "The code was copied to the clipboard and OpenCode was activated, but the paste keystroke was blocked." + Environment.NewLine + Environment.NewLine +
-                    "Press Ctrl+V in the OpenCode chat.");
+                _package.ShowWarning(Localization.PasteBlocked(targetDisplayName));
                 return;
             }
 
             string status;
             if (capture.IsWholeFile)
             {
-                status = $"OpenCode: file path sent ({capture.FileName})";
+                status = Localization.StatusFilePath(targetDisplayName, capture.FileName);
             }
             else
             {
-                status = $"OpenCode: fragment sent ({capture.LineCount} line(s))";
+                status = Localization.StatusFragment(targetDisplayName, capture.LineCount);
             }
 
             _package.SetStatusBarText(status);

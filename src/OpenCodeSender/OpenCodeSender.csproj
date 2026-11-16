@@ -12,7 +12,7 @@
     <AssemblyTitle>OpenCode Sender</AssemblyTitle>
     <Product>OpenCode Sender</Product>
     <Company>OpenCode Sender</Company>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <UICulture>en-US</UICulture>
 
     <!-- VSIX / VS SDK -->
