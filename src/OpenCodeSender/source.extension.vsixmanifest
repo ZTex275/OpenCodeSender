@@ -2,10 +2,12 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011"
                  xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="OpenCodeSender.7c1f8a52-9b0e-4c1d-8f3a-2d6e5b4a9c71" Version="1.0.5" Language="en-US" Publisher="OpenCode Sender" />
+    <Identity Id="OpenCodeSender.7c1f8a52-9b0e-4c1d-8f3a-2d6e5b4a9c71" Version="1.1.0" Language="en-US" Publisher="OpenCode Sender" />
     <DisplayName>OpenCode Sender</DisplayName>
-    <Description xml:space="preserve">Send the selected code fragment (or the whole file together with its full path) straight into the OpenCode chat window with a single shortcut.</Description>
-    <Tags>opencode, ai, clipboard, chat</Tags>
+    <Description xml:space="preserve">Send the selected code to the OpenCode chat with Ctrl+Alt+Shift+O. A fragment is copied as is, the whole file is sent as its full path, and OpenCode is started automatically when it is not running.</Description>
+    <Icon>Resources\icon-128.png</Icon>
+    <PreviewImage>Resources\preview-200.png</PreviewImage>
+    <Tags>opencode, ai, chat, code, assistant, clipboard, productivity</Tags>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[18.0,19.0)">

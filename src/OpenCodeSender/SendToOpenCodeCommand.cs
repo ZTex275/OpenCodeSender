@@ -11,7 +11,6 @@ namespace OpenCodeSender
     internal static class CommandIds
     {
         public const int SendSelection = 0x0100;
-        public const int SendSelectionContext = 0x0101;
     }
     /// <summary>
     /// "Send to OpenCode": copies the selection to the clipboard, activates the OpenCode window
@@ -44,7 +43,6 @@ namespace OpenCodeSender
             var command = new SendToOpenCodeCommand(package);
 
             commandService.AddCommand(command.CreateMenuCommand(CommandIds.SendSelection));
-            commandService.AddCommand(command.CreateMenuCommand(CommandIds.SendSelectionContext));
         }
 
         private OleMenuCommand CreateMenuCommand(int commandId)

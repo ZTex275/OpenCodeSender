@@ -12,7 +12,8 @@
     <AssemblyTitle>OpenCode Sender</AssemblyTitle>
     <Product>OpenCode Sender</Product>
     <Company>OpenCode Sender</Company>
-    <Version>1.0.5</Version>
+    <Version>1.1.0</Version>
+    <UICulture>en-US</UICulture>
 
     <!-- VSIX / VS SDK -->
     <CreateVsixContainer>true</CreateVsixContainer>
@@ -40,16 +41,44 @@
     <Reference Include="System.Design" />
   </ItemGroup>
 
+  <!-- Localized VSCT text is merged into these resources; VS loads the merged
+       Menus.ctmenu from the matching satellite assembly at runtime. -->
   <ItemGroup>
-    <VSCTCompile Include="VSCommandTable.vsct">
+    <EmbeddedResource Update="Resources.resx">
+      <LogicalName>OpenCodeSender.Resources.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources.en-US.resx">
+      <MergeWithCTO>true</MergeWithCTO>
+      <LogicalName>OpenCodeSender.Resources.en-US.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources.ru-RU.resx">
+      <MergeWithCTO>true</MergeWithCTO>
+      <LogicalName>OpenCodeSender.Resources.ru-RU.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <VSCTCompile Include="VSCommandTable.en-US.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
+    </VSCTCompile>
+    <VSCTCompile Include="VSCommandTable.ru-RU.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Resources\icon-128.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Resources\preview-200.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="ru-RU\Extension.vsixlangpack">
+      <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
   </ItemGroup>
 

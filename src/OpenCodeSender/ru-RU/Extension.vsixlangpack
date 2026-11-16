@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageLanguagePackManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <DisplayName>OpenCode Sender</DisplayName>
+    <Description xml:space="preserve">Отправляйте выделенный код в чат OpenCode по Ctrl+Alt+Shift+O. Фрагмент копируется как есть, весь файл отправляется полным путём, а закрытый OpenCode запускается автоматически.</Description>
+  </Metadata>
+</PackageLanguagePackManifest>

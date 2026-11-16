@@ -17,19 +17,28 @@
     <Buttons>
       <Button guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection" priority="0x0100" type="Button">
         <Parent guid="guidOpenCodeSenderCmdSet" id="ToolsMenuGroup" />
+        <Icon guid="guidImages" id="bmpSend" />
         <Strings>
+          <CommandName>SendtoOpenCode</CommandName>
           <ButtonText>Send to OpenCode</ButtonText>
-        </Strings>
-      </Button>
-
-      <Button guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelectionContext" priority="0x0100" type="Button">
-        <Parent guid="guidOpenCodeSenderCmdSet" id="EditorContextMenuGroup" />
-        <Strings>
-          <ButtonText>Send to OpenCode</ButtonText>
+          <ToolTipText>Send the selected code to the OpenCode chat (Ctrl+Alt+Shift+O)</ToolTipText>
         </Strings>
       </Button>
     </Buttons>
+
+    <Bitmaps>
+      <Bitmap guid="guidImages" href="Resources\command-16.png" usedList="bmpSend" />
+    </Bitmaps>
   </Commands>
+
+  <!-- The same command is placed in the editor context menu instead of being
+       duplicated, so Visual Studio renders the shortcut of the command in both
+       menus (Ctrl+Alt+Shift+O on the right). -->
+  <CommandPlacements>
+    <CommandPlacement guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection" priority="0x0100">
+      <Parent guid="guidOpenCodeSenderCmdSet" id="EditorContextMenuGroup" />
+    </CommandPlacement>
+  </CommandPlacements>
 
   <KeyBindings>
     <KeyBinding guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection"
@@ -43,7 +52,10 @@
       <IDSymbol name="ToolsMenuGroup" value="0x1020" />
       <IDSymbol name="EditorContextMenuGroup" value="0x1021" />
       <IDSymbol name="cmdidSendSelection" value="0x0100" />
-      <IDSymbol name="cmdidSendSelectionContext" value="0x0101" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidImages" value="{a1f3c5e7-2b4d-4f60-8c9a-1d2e3f405162}">
+      <IDSymbol name="bmpSend" value="1" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

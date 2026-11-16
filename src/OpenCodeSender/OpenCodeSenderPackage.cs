@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using OpenCodeSender.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace OpenCodeSender
@@ -13,7 +14,7 @@ namespace OpenCodeSender
     /// Entry point of the extension. Registers the commands and the options page.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("OpenCode Sender", "Sends the selected code to the OpenCode chat window.", "1.0.5")]
+    [InstalledProductRegistration("OpenCode Sender", "Sends the selected code to the OpenCode chat window.", "1.1.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OpenCodeOptionsPage), "OpenCode Sender", "General", 0, 0, true)]
     [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
@@ -53,7 +54,7 @@ namespace OpenCodeSender
                     return;
                 }
 
-                EnvDTE.Command command = dte.Commands.Item(SendToOpenCodeCommand.CanonicalName, -1);
+                EnvDTE.Command command = FindCommand(dte);
                 if (command == null)
                 {
                     Log("KeyBinding: command not found.");
@@ -101,7 +102,7 @@ namespace OpenCodeSender
                     return;
                 }
 
-                string binding = scope + "::" + SendToOpenCodeCommand.DefaultShortcut;
+                string binding = scope + "::" + GetKeyboardLayoutShortcut(SendToOpenCodeCommand.DefaultShortcut);
                 command.Bindings = new object[] { binding };
 
                 object[] assigned = command.Bindings as object[];
@@ -125,6 +126,95 @@ namespace OpenCodeSender
             {
                 // Diagnostics must never break the package.
             }
+        }
+
+        /// <summary>
+        /// Finds the command in a locale-independent way. Localized command tables derive the
+        /// canonical name from the localized button text, so the DTE name changes with the
+        /// Visual Studio UI language; the GUID and the command id never change.
+        /// </summary>
+        private static EnvDTE.Command FindCommand(EnvDTE.DTE dte)
+        {
+            try
+            {
+                EnvDTE.Command byName = dte.Commands.Item(SendToOpenCodeCommand.CanonicalName, -1);
+                if (byName != null)
+                {
+                    return byName;
+                }
+            }
+            catch (Exception)
+            {
+                // The localized name differs - fall back to the stable identifier.
+            }
+
+            try
+            {
+                return dte.Commands.Item(CommandSet, CommandIds.SendSelection);
+            }
+            catch (Exception ex)
+            {
+                Log("KeyBinding: lookup by GUID failed - " + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// The automation model parses the key part of a binding with the active keyboard layout,
+        /// so "Ctrl+Alt+Shift+O" is not understood when a Cyrillic layout is selected (the O key
+        /// produces another character there). The key name is therefore translated to the name of
+        /// the physical key in the current layout; Visual Studio stores and displays it as "O".
+        /// </summary>
+        private static string GetKeyboardLayoutShortcut(string shortcut)
+        {
+            if (string.IsNullOrEmpty(shortcut))
+            {
+                return shortcut;
+            }
+
+            int separator = shortcut.LastIndexOf('+');
+            string modifiers = separator >= 0 ? shortcut.Substring(0, separator + 1) : string.Empty;
+            string key = separator >= 0 ? shortcut.Substring(separator + 1) : shortcut;
+
+            if (key.Length != 1 || key[0] > 127)
+            {
+                return shortcut;
+            }
+
+            try
+            {
+                uint virtualKey = char.ToUpperInvariant(key[0]);
+                IntPtr layout = NativeMethods.GetKeyboardLayout(0);
+                uint scanCode = NativeMethods.MapVirtualKeyEx(virtualKey, NativeMethods.MapVkToVsc, layout);
+                if (scanCode == 0)
+                {
+                    return shortcut;
+                }
+
+                var state = new byte[256];
+                state[0x10] = 0x80; // VK_SHIFT: ask for the uppercase character of the key.
+
+                var name = new System.Text.StringBuilder(8);
+                int result = NativeMethods.ToUnicodeEx(
+                    virtualKey,
+                    scanCode,
+                    state,
+                    name,
+                    name.Capacity,
+                    0x04, // Do not change the keyboard state (dead keys).
+                    layout);
+
+                if (result > 0 && name.Length > 0)
+                {
+                    return modifiers + name;
+                }
+            }
+            catch (Exception)
+            {
+                // Keep the portable name if the layout cannot be queried.
+            }
+
+            return shortcut;
         }
 
         private static bool IsSameShortcut(string value, string expected)
