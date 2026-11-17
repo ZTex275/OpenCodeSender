@@ -6,32 +6,35 @@ using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     internal static class CommandIds
     {
         public const int SendSelection = 0x0100;
     }
     /// <summary>
-    /// "Send to OpenCode": copies the selection to the clipboard, activates the OpenCode window
-    /// and pastes the text into the chat input.
+    /// "Paste into all": copies the selection to the clipboard, activates the target window
+    /// (OpenCode by default) and pastes the text there.
     /// </summary>
-    internal sealed class SendToOpenCodeCommand
+    internal sealed class PasteIntoAllCommand
     {
-        /// <summary>Canonical (DTE) name of the command defined in VSCommandTable.vsct.</summary>
-        public const string CanonicalName = "Tools.SendtoOpenCode";
+        /// <summary>
+        /// Canonical (DTE) name used as a fast path when looking the command up. In a localized
+        /// Visual Studio the name differs, so the lookup falls back to the GUID and command id.
+        /// </summary>
+        public const string CanonicalName = "Tools.Pasteintoall";
 
         /// <summary>Default keyboard shortcut, must match the one in VSCommandTable.vsct.</summary>
         public const string DefaultShortcut = "Ctrl+Alt+Shift+O";
 
-        private readonly OpenCodeSenderPackage _package;
+        private readonly PasteIntoAllPackage _package;
 
-        private SendToOpenCodeCommand(OpenCodeSenderPackage package)
+        private PasteIntoAllCommand(PasteIntoAllPackage package)
         {
             _package = package;
         }
 
-        public static async Task InitializeAsync(OpenCodeSenderPackage package)
+        public static async Task InitializeAsync(PasteIntoAllPackage package)
         {
             await package.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -40,14 +43,14 @@ namespace OpenCodeSender
                 return;
             }
 
-            var command = new SendToOpenCodeCommand(package);
+            var command = new PasteIntoAllCommand(package);
 
             commandService.AddCommand(command.CreateMenuCommand(CommandIds.SendSelection));
         }
 
         private OleMenuCommand CreateMenuCommand(int commandId)
         {
-            return new OleMenuCommand(Execute, new CommandID(OpenCodeSenderPackage.CommandSet, commandId));
+            return new OleMenuCommand(Execute, new CommandID(PasteIntoAllPackage.CommandSet, commandId));
         }
 
         private void Execute(object sender, EventArgs e)
@@ -79,7 +82,7 @@ namespace OpenCodeSender
                 return;
             }
 
-            OpenCodeOptionsPage options = _package.Options;
+            PasteIntoAllOptionsPage options = _package.Options;
 
             CapturedSelection capture;
             try
@@ -120,7 +123,7 @@ namespace OpenCodeSender
             PasteResult result = await Task.Run(() => PasteFlow.Run(delay, targetName, launchIfMissing, executablePath, launchTimeout));
             await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            OpenCodeSenderPackage.Log(
+            PasteIntoAllPackage.Log(
                 $"Send: wholeFile={capture.IsWholeFile} payloadLength={payload.Length} " +
                 $"launched={result.Launched} windowFound={result.WindowFound} target='{result.WindowDescription}' " +
                 $"activated={result.Activated} pasted={result.Pasted}" +

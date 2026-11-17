@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Win32;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     /// <summary>
     /// Starts the OpenCode desktop application when it is not running yet.
@@ -52,7 +52,7 @@ namespace OpenCodeSender
             if (string.IsNullOrEmpty(executable))
             {
                 error = "OpenCode.exe was not found. Start OpenCode once manually or set its path in " +
-                        "Tools > Options > OpenCode Sender.";
+                        "Tools > Options > Paste into all.";
                 return false;
             }
 

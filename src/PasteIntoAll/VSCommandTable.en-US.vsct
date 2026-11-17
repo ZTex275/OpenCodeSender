@@ -4,24 +4,24 @@
   <Extern href="stdidcmd.h" />
   <Extern href="vsshlids.h" />
 
-  <Commands package="guidOpenCodeSenderPackage">
+  <Commands package="guidPasteIntoAllPackage">
     <Groups>
-      <Group guid="guidOpenCodeSenderCmdSet" id="ToolsMenuGroup" priority="0x0600">
+      <Group guid="guidPasteIntoAllCmdSet" id="ToolsMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
       </Group>
-      <Group guid="guidOpenCodeSenderCmdSet" id="EditorContextMenuGroup" priority="0x0500">
+      <Group guid="guidPasteIntoAllCmdSet" id="EditorContextMenuGroup" priority="0x0500">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN" />
       </Group>
     </Groups>
 
     <Buttons>
-      <Button guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection" priority="0x0100" type="Button">
-        <Parent guid="guidOpenCodeSenderCmdSet" id="ToolsMenuGroup" />
+      <Button guid="guidPasteIntoAllCmdSet" id="cmdidSendSelection" priority="0x0100" type="Button">
+        <Parent guid="guidPasteIntoAllCmdSet" id="ToolsMenuGroup" />
         <Icon guid="guidImages" id="bmpSend" />
         <Strings>
-          <CommandName>SendtoOpenCode</CommandName>
-          <ButtonText>Send to OpenCode</ButtonText>
-          <ToolTipText>Send the selected code to the OpenCode chat (Ctrl+Alt+Shift+O)</ToolTipText>
+          <CommandName>PasteIntoAll</CommandName>
+          <ButtonText>Paste into all</ButtonText>
+          <ToolTipText>Paste the selected code into the target application (Ctrl+Alt+Shift+O)</ToolTipText>
         </Strings>
       </Button>
     </Buttons>
@@ -35,20 +35,20 @@
        duplicated, so Visual Studio renders the shortcut of the command in both
        menus (Ctrl+Alt+Shift+O on the right). -->
   <CommandPlacements>
-    <CommandPlacement guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection" priority="0x0100">
-      <Parent guid="guidOpenCodeSenderCmdSet" id="EditorContextMenuGroup" />
+    <CommandPlacement guid="guidPasteIntoAllCmdSet" id="cmdidSendSelection" priority="0x0100">
+      <Parent guid="guidPasteIntoAllCmdSet" id="EditorContextMenuGroup" />
     </CommandPlacement>
   </CommandPlacements>
 
   <KeyBindings>
-    <KeyBinding guid="guidOpenCodeSenderCmdSet" id="cmdidSendSelection"
+    <KeyBinding guid="guidPasteIntoAllCmdSet" id="cmdidSendSelection"
                 editor="guidVSStd97" key1="O" mod1="CONTROL ALT SHIFT" />
   </KeyBindings>
 
   <Symbols>
-    <GuidSymbol name="guidOpenCodeSenderPackage" value="{8f9d1a2c-6b3e-4c7a-9e21-5a0d3b8c4f61}" />
+    <GuidSymbol name="guidPasteIntoAllPackage" value="{8f9d1a2c-6b3e-4c7a-9e21-5a0d3b8c4f61}" />
 
-    <GuidSymbol name="guidOpenCodeSenderCmdSet" value="{3c7a1f84-2d95-4b8e-a174-6c0e9f2b5d38}">
+    <GuidSymbol name="guidPasteIntoAllCmdSet" value="{3c7a1f84-2d95-4b8e-a174-6c0e9f2b5d38}">
       <IDSymbol name="ToolsMenuGroup" value="0x1020" />
       <IDSymbol name="EditorContextMenuGroup" value="0x1021" />
       <IDSymbol name="cmdidSendSelection" value="0x0100" />

@@ -5,14 +5,14 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>OpenCodeSender</RootNamespace>
-    <AssemblyName>OpenCodeSender</AssemblyName>
+    <RootNamespace>PasteIntoAll</RootNamespace>
+    <AssemblyName>PasteIntoAll</AssemblyName>
     <Nullable>disable</Nullable>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AssemblyTitle>OpenCode Sender</AssemblyTitle>
-    <Product>OpenCode Sender</Product>
-    <Company>OpenCode Sender</Company>
-    <Version>1.2.0</Version>
+    <AssemblyTitle>Paste into all</AssemblyTitle>
+    <Product>Paste into all</Product>
+    <Company>Paste into all</Company>
+    <Version>1.3.0</Version>
     <UICulture>en-US</UICulture>
 
     <!-- VSIX / VS SDK -->
@@ -45,15 +45,15 @@
        Menus.ctmenu from the matching satellite assembly at runtime. -->
   <ItemGroup>
     <EmbeddedResource Update="Resources.resx">
-      <LogicalName>OpenCodeSender.Resources.resources</LogicalName>
+      <LogicalName>PasteIntoAll.Resources.resources</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources.en-US.resx">
       <MergeWithCTO>true</MergeWithCTO>
-      <LogicalName>OpenCodeSender.Resources.en-US.resources</LogicalName>
+      <LogicalName>PasteIntoAll.Resources.en-US.resources</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources.ru-RU.resx">
       <MergeWithCTO>true</MergeWithCTO>
-      <LogicalName>OpenCodeSender.Resources.ru-RU.resources</LogicalName>
+      <LogicalName>PasteIntoAll.Resources.ru-RU.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 

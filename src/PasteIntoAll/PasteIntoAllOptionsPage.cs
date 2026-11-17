@@ -2,14 +2,14 @@ using System;
 using System.ComponentModel;
 using Microsoft.VisualStudio.Shell;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     /// <summary>
-    /// Settings available in Tools &gt; Options &gt; OpenCode Sender.
+    /// Settings available in Tools &gt; Options &gt; Paste into all.
     /// The attribute texts are English fallbacks; <see cref="ICustomTypeDescriptor"/> replaces
     /// them with the strings of the current Visual Studio UI language.
     /// </summary>
-    public class OpenCodeOptionsPage : DialogPage, ICustomTypeDescriptor
+    public class PasteIntoAllOptionsPage : DialogPage, ICustomTypeDescriptor
     {
         [Category("Pasting")]
         [DisplayName("Paste delay (ms)")]
@@ -37,7 +37,7 @@ namespace OpenCodeSender
 
         [Category("Pasting")]
         [DisplayName("Target application (process or window title)")]
-        [Description("Process name (opencode, chrome, Code) or a fragment of a window title. Leave empty to send to OpenCode.")]
+        [Description("Process name (opencode, chrome, Code, notepad) or a fragment of a window title. The application must already be open. Leave empty to paste into OpenCode.")]
         [DefaultValue("opencode")]
         public string TargetApplication { get; set; } = "opencode";
 

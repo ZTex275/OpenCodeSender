@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using OpenCodeSender.Interop;
+using PasteIntoAll.Interop;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     internal sealed class WindowTarget
     {

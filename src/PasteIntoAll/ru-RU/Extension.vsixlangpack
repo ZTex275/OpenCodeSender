@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageLanguagePackManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <DisplayName>Paste into all</DisplayName>
+    <Description xml:space="preserve">Вставляет выделенный код в OpenCode, VS Code, браузер, блокнот или любое другое приложение по Ctrl+Alt+Shift+O. Фрагмент вставляется как есть, целый файл — путём. Целевое приложение должно быть уже открыто.</Description>
+  </Metadata>
+</PackageLanguagePackManifest>

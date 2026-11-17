@@ -18,10 +18,10 @@ if (-not $msbuild) {
 
 Write-Host "MSBuild: $msbuild"
 
-& $msbuild (Join-Path $root "OpenCodeSender.sln") -restore -p:Configuration=$Configuration -v:minimal -nologo
+& $msbuild (Join-Path $root "PasteIntoAll.sln") -restore -p:Configuration=$Configuration -v:minimal -nologo
 if ($LASTEXITCODE -ne 0) {
     throw "Build failed with exit code $LASTEXITCODE."
 }
 
-$vsix = Join-Path $root "src\OpenCodeSender\bin\$Configuration\net472\OpenCodeSender.vsix"
+$vsix = Join-Path $root "src\PasteIntoAll\bin\$Configuration\net472\PasteIntoAll.vsix"
 Write-Host "VSIX: $vsix"

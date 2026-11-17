@@ -3,10 +3,10 @@ using System.Text;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     /// <summary>
-    /// Code that is going to be sent to OpenCode.
+    /// Code that is going to be pasted into the target application.
     /// </summary>
     internal sealed class CapturedSelection
     {
@@ -189,7 +189,7 @@ namespace OpenCodeSender
         /// A whole file is replaced by its absolute path (the contents are optional), a fragment
         /// is pasted as is.
         /// </summary>
-        public static string Build(CapturedSelection capture, OpenCodeOptionsPage options)
+        public static string Build(CapturedSelection capture, PasteIntoAllOptionsPage options)
         {
             string code = capture.Code ?? string.Empty;
 

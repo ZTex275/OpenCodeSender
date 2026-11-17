@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     /// <summary>
     /// User interface strings. Visual Studio shows the extension in English and Russian;
@@ -68,8 +68,8 @@ namespace OpenCodeSender
             "Целевое приложение (процесс или заголовок окна)");
 
         public static string TargetDescription => Pick(
-            "Process name (for example opencode, chrome, Code) or a fragment of a window title. The first visible window of that process receives the text. Leave empty to send to OpenCode.",
-            "Имя процесса (например opencode, chrome, Code) или фрагмент заголовка окна. Текст вставляется в первое видимое окно этого процесса. Пусто — отправлять в OpenCode.");
+            "Process name (for example opencode, chrome, Code, notepad) or a fragment of a window title. The application must already be running: the text is pasted into its first visible window. Leave empty to paste into OpenCode.",
+            "Имя процесса (например opencode, chrome, Code, notepad) или фрагмент заголовка окна. Приложение должно быть уже запущено: текст вставляется в его первое видимое окно. Пусто — вставлять в OpenCode.");
 
         public static string WholeFilePathName => Pick(
             "Send the full file path when the whole file is selected",
@@ -102,8 +102,8 @@ namespace OpenCodeSender
             "Объект автоматизации Visual Studio (DTE) недоступен.");
 
         public static string SendFailed(string details) => Pick(
-            "Sending the code failed:" + Environment.NewLine + Environment.NewLine + details,
-            "Не удалось отправить код:" + Environment.NewLine + Environment.NewLine + details);
+            "Pasting the code failed:" + Environment.NewLine + Environment.NewLine + details,
+            "Не удалось вставить код:" + Environment.NewLine + Environment.NewLine + details);
 
         public static string ReadEditorFailed(string details) => Pick(
             "Could not read the editor content:" + Environment.NewLine + Environment.NewLine + details,
@@ -121,23 +121,23 @@ namespace OpenCodeSender
             "The code was copied to the clipboard, but OpenCode could not be started." +
             Environment.NewLine + Environment.NewLine + error +
             Environment.NewLine + Environment.NewLine +
-            "Start OpenCode manually and press Ctrl+V there, or set the executable path in Tools > Options > OpenCode Sender.",
+            "Start OpenCode manually and press Ctrl+V there, or set the executable path in Tools > Options > Paste into all.",
             "Код скопирован в буфер обмена, но запустить OpenCode не удалось." +
             Environment.NewLine + Environment.NewLine + error +
             Environment.NewLine + Environment.NewLine +
-            "Запустите OpenCode вручную и нажмите в нём Ctrl+V либо укажите путь к OpenCode.exe в Средства → Параметры → OpenCode Sender.");
+            "Запустите OpenCode вручную и нажмите в нём Ctrl+V либо укажите путь к OpenCode.exe в Средства → Параметры → Paste into all.");
 
         public static string WindowNotFound(string target) => Pick(
             "The code was copied to the clipboard, but no window of \"" + target + "\" was found." +
             Environment.NewLine + Environment.NewLine +
-            "Start the application and press Ctrl+V there to paste the code." +
+            "The target application must already be open: start it and press Ctrl+V there to paste the code." +
             Environment.NewLine + Environment.NewLine +
-            "The target is configured in Tools > Options > OpenCode Sender > General.",
+            "The target is configured in Tools > Options > Paste into all > General.",
             "Код скопирован в буфер обмена, но окно «" + target + "» не найдено." +
             Environment.NewLine + Environment.NewLine +
-            "Запустите приложение и нажмите в нём Ctrl+V, чтобы вставить код." +
+            "Целевое приложение должно быть уже открыто: запустите его и нажмите в нём Ctrl+V, чтобы вставить код." +
             Environment.NewLine + Environment.NewLine +
-            "Целевое приложение задаётся в Средства → Параметры → OpenCode Sender → General.");
+            "Целевое приложение задаётся в Средства → Параметры → Paste into all → General.");
 
         public static string NotActivated(string target) => Pick(
             "The code was copied to the clipboard, but the window of \"" + target + "\" could not be activated." +
@@ -156,11 +156,11 @@ namespace OpenCodeSender
             "Нажмите в нём Ctrl+V.");
 
         public static string StatusFilePath(string target, string fileName) => Pick(
-            target + ": file path sent (" + fileName + ")",
-            target + ": отправлен путь к файлу (" + fileName + ")");
+            target + ": file path pasted (" + fileName + ")",
+            target + ": вставлен путь к файлу (" + fileName + ")");
 
         public static string StatusFragment(string target, int lineCount) => Pick(
-            target + ": fragment sent (" + lineCount + " line(s))",
-            target + ": отправлен фрагмент (строк: " + lineCount + ")");
+            target + ": fragment pasted (" + lineCount + " line(s))",
+            target + ": вставлен фрагмент (строк: " + lineCount + ")");
     }
 }

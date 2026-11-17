@@ -1,11 +1,23 @@
 # Changelog
 
+## 1.3.0
+
+### Changed
+
+- **Renamed to Paste into all.** The extension, the assembly (`PasteIntoAll.dll`), the namespace, the solution, the options page and the documentation all carry the new name. The command is *Paste into all* in English Visual Studio and *Вставить в приложение* in Russian Visual Studio.
+- Settings, messages and status‑bar text now speak about pasting into a target application rather than sending to a chat, so they fit every target.
+- Diagnostics log moved to `%TEMP%\paste-into-all.log`.
+
+### Added
+
+- The description states explicitly that the target process must already be open, and that the extension has been verified with browsers, OpenCode, VS Code and Notepad.
+
 ## 1.2.0
 
 ### Added
 
 - **Any target application.** The setting formerly known as *OpenCode window title filter* is now **Target application (process or window title)**: enter a process name (`chrome`, `Code`, `notepad`) or a fragment of a window title and the text is pasted there. Compact spellings are understood (`vscode` finds “Visual Studio Code”), and empty or `opencode` keeps the original OpenCode behaviour.
-- **Localized options page.** Setting names, descriptions and category groups on *Tools → Options → OpenCode Sender → General* are now shown in Russian Visual Studio, and all dialogs and status‑bar messages follow the UI language.
+- **Localized options page.** Setting names, descriptions and category groups on *Tools → Options → Paste into all → General* are now shown in Russian Visual Studio, and all dialogs and status‑bar messages follow the UI language.
 
 ### Changed
 
@@ -17,7 +29,7 @@
 
 ### Added
 
-- **Localized command caption.** The command is now *Send to OpenCode* in English Visual Studio and *Отправить в OpenCode* in Russian Visual Studio, through culture‑specific VSCT command tables merged into satellite assemblies (`en-US`, `ru-RU`).
+- **Localized command caption.** The command is now *Paste into all* in English Visual Studio and *Вставить в приложение* in Russian Visual Studio, through culture‑specific VSCT command tables merged into satellite assemblies (`en-US`, `ru-RU`).
 - **Localized Extensions Manager entry.** A Russian language pack (`ru-RU/Extension.vsixlangpack`) provides the localized display name and description.
 - **Marketplace artwork.** A 128×128 extension icon, a 200×200 preview image and a dedicated 16×16 command icon for the Tools menu.
 - **`Ctrl+Alt+Shift+O` in the tooltip.** The command tooltip now advertises the shortcut in both languages.
@@ -39,4 +51,4 @@
 - Send a fragment, a whole file path, or the file path plus contents to the OpenCode chat.
 - Automatic OpenCode launch when it is not running, with careful window detection (Visual Studio, browsers and Explorer are excluded).
 - Configurable paste delay, startup timeout, executable path, window title filter and whole‑file behaviour.
-- Diagnostics written to `%TEMP%\opencode-sender.log`.
+- Diagnostics written to `%TEMP%\paste-into-all.log`.

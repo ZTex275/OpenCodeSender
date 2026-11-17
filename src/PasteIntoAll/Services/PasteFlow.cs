@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using OpenCodeSender.Interop;
+using PasteIntoAll.Interop;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     internal sealed class PasteResult
     {

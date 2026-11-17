@@ -5,34 +5,34 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using OpenCodeSender.Interop;
+using PasteIntoAll.Interop;
 using Task = System.Threading.Tasks.Task;
 
-namespace OpenCodeSender
+namespace PasteIntoAll
 {
     /// <summary>
     /// Entry point of the extension. Registers the commands and the options page.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("OpenCode Sender", "Sends the selected code to the OpenCode chat window.", "1.2.0")]
+    [InstalledProductRegistration("Paste into all", "Pastes the selected code into OpenCode or any other application.", "1.3.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideOptionPage(typeof(OpenCodeOptionsPage), "OpenCode Sender", "General", 0, 0, true)]
+    [ProvideOptionPage(typeof(PasteIntoAllOptionsPage), "Paste into all", "General", 0, 0, true)]
     [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuidString)]
-    public sealed class OpenCodeSenderPackage : AsyncPackage
+    public sealed class PasteIntoAllPackage : AsyncPackage
     {
         public const string PackageGuidString = "8f9d1a2c-6b3e-4c7a-9e21-5a0d3b8c4f61";
 
         public static readonly Guid CommandSet = new Guid("3c7a1f84-2d95-4b8e-a174-6c0e9f2b5d38");
 
-        public OpenCodeOptionsPage Options =>
-            (OpenCodeOptionsPage)GetDialogPage(typeof(OpenCodeOptionsPage));
+        public PasteIntoAllOptionsPage Options =>
+            (PasteIntoAllOptionsPage)GetDialogPage(typeof(PasteIntoAllOptionsPage));
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-            await SendToOpenCodeCommand.InitializeAsync(this);
+            await PasteIntoAllCommand.InitializeAsync(this);
             EnsureDefaultKeyBinding();
         }
 
@@ -76,7 +76,7 @@ namespace OpenCodeSender
                         }
 
                         string keys = text.Substring(text.IndexOf("::", StringComparison.Ordinal) + 2);
-                        if (IsSameShortcut(keys, SendToOpenCodeCommand.DefaultShortcut))
+                        if (IsSameShortcut(keys, PasteIntoAllCommand.DefaultShortcut))
                         {
                             matchesDefault = true;
                         }
@@ -102,7 +102,7 @@ namespace OpenCodeSender
                     return;
                 }
 
-                string binding = scope + "::" + GetKeyboardLayoutShortcut(SendToOpenCodeCommand.DefaultShortcut);
+                string binding = scope + "::" + GetKeyboardLayoutShortcut(PasteIntoAllCommand.DefaultShortcut);
                 command.Bindings = new object[] { binding };
 
                 object[] assigned = command.Bindings as object[];
@@ -119,7 +119,7 @@ namespace OpenCodeSender
         {
             try
             {
-                string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "opencode-sender.log");
+                string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "paste-into-all.log");
                 System.IO.File.AppendAllText(path, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "  " + message + Environment.NewLine);
             }
             catch (Exception)
@@ -137,7 +137,7 @@ namespace OpenCodeSender
         {
             try
             {
-                EnvDTE.Command byName = dte.Commands.Item(SendToOpenCodeCommand.CanonicalName, -1);
+                EnvDTE.Command byName = dte.Commands.Item(PasteIntoAllCommand.CanonicalName, -1);
                 if (byName != null)
                 {
                     return byName;
@@ -354,7 +354,7 @@ namespace OpenCodeSender
             VsShellUtilities.ShowMessageBox(
                 this,
                 message,
-                "OpenCode Sender",
+                "Paste into all",
                 icon,
                 OLEMSGBUTTON.OLEMSGBUTTON_OK,
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
