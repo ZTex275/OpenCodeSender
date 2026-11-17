@@ -77,6 +77,8 @@ docs/marketplace/                   описание, метаданные и ch
 
 Нужен MSBuild из Visual Studio (не `dotnet build`) — VSIX-у нужны задачи VSSDK.
 
+Сборка идёт с `Microsoft.VSSDK.BuildTools` **18.x** и `Microsoft.VisualStudio.SDK` **18.x**. Для Visual Studio 2026 это обязательно: VSIX, собранный с пакетами 17.x, выглядит рабочим, но внутри его `manifest.json` нет поля `"sdk":"18.0"`, и Marketplace отклоняет загрузку с ошибкой *«Your extension targets API version 18.0 or greater but was not built with an up-to-date VSSDK»*.
+
 ```powershell
 .\build.ps1
 ```
